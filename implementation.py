@@ -28,7 +28,7 @@ class IVCRecorderModule(base.ModuleBase):
         print "Configuring module for session {0}".format(session.id)
         self.sessions[session.id] = handler = IVCRecorder(self, session)
         address = Address(routing_key=session.id)
-        yield self.amq_server(address, SessionListener, handler, AcquisitionManager.queues)
+        yield self.amq_server(address, SessionListener, handler, IVCRecorder.queues)
     
     def acquisition_devices(self):
         return []
