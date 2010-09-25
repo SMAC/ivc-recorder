@@ -1,6 +1,5 @@
-import os
 
-from twisted.internet import reactor, protocol, error, defer
+from twisted.internet import protocol, error, defer
 from twisted.python import log, failure
 from twisted.protocols import basic
 
@@ -80,44 +79,4 @@ class IVC4300Process(protocol.ProcessProtocol):
     def processEnded(self, failure):
         failure.trap(error.ProcessDone)
         self.processStopped.callback(self.out)
-    
-
-
-class IVC4300Recorder(object):
-    
-    @defer.inlineCallbacks
-    def start(self):
-        started = defer.Deferred()
-        self.serverStopped = defer.Deferred()
-        self.processStopped = defer.Deferred()
-        
-        fact = protocol.Factory()
-        fact.protocol = IVC4300Protocol
-        fact.onConnectionMade = started
-        fact.onConnectionLost = self.serverStopped
-        
-        proc = IVC4300Process(self.processStopped)
-        
-        executable = "C:/smacCapture/capture2.exe"
-        path, bin = os.path.split(executable)
-        
-        PORT = 6544
-        port = reactor.listenTCP(PORT, fact)
-        reactor.spawnProcess(proc, executable, [bin,], {}, path)
-        
-        self.protocol = yield started
-        self.portStopped = defer.maybeDeferred(port.stopListening)
-        self.portStopped.addCallback(lambda _: log.msg("Stopped listening"))
-        yield self.protocol.start()
-    
-    @defer.inlineCallbacks
-    def stop(self):
-        self.protocol.stop().addCallback(lambda _: log.msg("Stop signal sent"))
-        
-        d1 = self.processStopped.addCallback(lambda r: log.msg("Process exited") or r)
-        d2 = self.serverStopped.addCallback(lambda _: log.msg("Server stopped"))
-        
-        res = yield defer.gatherResults([self.portStopped, d1, d2])
-        
-        defer.returnValue(res[1])
     
