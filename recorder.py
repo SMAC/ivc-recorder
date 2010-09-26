@@ -32,7 +32,7 @@ class RecordingTask(Task):
         
         proc = ivc.IVC4300Process(self.processStopped)
         
-        executable = "C:/smacCapture2/capture2.exe"
+        executable = "C:/smacCapture/capture2.exe"
         path, bin = os.path.split(executable)
         
         PORT = 6544
@@ -50,7 +50,7 @@ class RecordingTask(Task):
         super(RecordingTask, self).fail(str(failure))
     
     @defer.inlineCallbacks
-    def stop(self):
+    def stop(self, msg=None):
         self.protocol.stop().addCallback(lambda _: log.msg("Stop signal sent"))
         
         d1 = self.processStopped.addCallback(lambda r: log.msg("Process exited") or r)
