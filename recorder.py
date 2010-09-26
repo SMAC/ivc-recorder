@@ -3,7 +3,7 @@
 from twisted.internet import defer, reactor, protocol
 
 from smac.acquisition import AcquisitionSetup
-from smac.sessions.remote import SessionListener
+from smac.session.remote import Handler
 from smac.tasks import Task
 
 from sender import OutgoingFileTransfer
@@ -58,7 +58,7 @@ class RecordingTask(Task):
         super(RecordingTask, self).complete(res[1])
 
 
-class IVCRecorder(SessionListener):
+class IVCRecorder(Handler):
     
     def __init__(self, *args, **kwargs):
         super(IVCRecorder, self).__init__(*args, **kwargs)
