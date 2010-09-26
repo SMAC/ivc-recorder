@@ -77,6 +77,10 @@ class IVC4300Process(protocol.ProcessProtocol):
         self.out += data
     
     def processEnded(self, failure):
-        failure.trap(error.ProcessDone)
-        self.processStopped.callback(self.out)
+        try:
+            failure.trap(error.ProcessDone)
+            self.processStopped.callback(self.out)
+        except:
+            self.processStopped.errback(failure)
+            
     

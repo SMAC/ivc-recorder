@@ -46,11 +46,14 @@ class RecordingTask(Task):
         
         print "Start recording session {0} (parent task is {1})".format(self.session.id, self.parent)
     
+    def fail(self, failure):
+        super(RecordingTask, self).fail(str(failure))
+    
     @defer.inlineCallbacks
     def stop(self):
         self.protocol.stop().addCallback(lambda _: log.msg("Stop signal sent"))
         
-        d1 = self.processStopped.addCallback(lambda r: log.msg("Process exited") or r)
+        self.processStopped.addErrback(self.fail).addCallback(lambda r: log.msg("Process exited") or r)
         d2 = self.serverStopped.addCallback(lambda _: log.msg("Server stopped"))
         
         res = yield defer.gatherResults([self.portStopped, d1, d2])
